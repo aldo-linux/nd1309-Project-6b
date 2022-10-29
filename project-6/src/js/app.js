@@ -59,6 +59,7 @@ App = {
         /// Find or Inject Web3 Provider
         /// Modern dapp browsers...
         if (window.ethereum) {
+            console.log('Ethereum');
             App.web3Provider = window.ethereum;
             try {
                 // Request account access
@@ -70,13 +71,16 @@ App = {
         }
         // Legacy dapp browsers...
         else if (window.web3) {
+            console.log('web3');
             App.web3Provider = window.web3.currentProvider;
         }
         // If no injected web3 instance is detected, fall back to Ganache
         else {
+            console.log('provider');
             App.web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
         }
 
+        console.log('getMetamaskId');
         App.getMetaskAccountID();
 
         return App.initSupplyChain();
@@ -100,13 +104,20 @@ App = {
     initSupplyChain: function () {
         /// Source the truffle compiled smart contracts
         var jsonSupplyChain='../../build/contracts/SupplyChain.json';
-        
+
         /// JSONfy the smart contracts
         $.getJSON(jsonSupplyChain, function(data) {
             console.log('data',data);
             var SupplyChainArtifact = data;
             App.contracts.SupplyChain = TruffleContract(SupplyChainArtifact);
             App.contracts.SupplyChain.setProvider(App.web3Provider);
+
+            console.log("web3: ", web3);
+            console.log("web3 eth: ", web3.eth);
+            console.log("web3 eth defaultAccount: ", web3.eth.defaultAccount);
+            console.log("web3 eth accounts: ", web3.eth.accounts);
+
+            web3.eth.defaultAccount = web3.eth.accounts[0];
             
             App.fetchItemBufferOne();
             App.fetchItemBufferTwo();
@@ -181,7 +192,7 @@ App = {
             $("#ftc-item").text(result);
             console.log('harvestItem',result);
         }).catch(function(err) {
-            console.log(err.message);
+            console.log("harvestItem error: ", err);
         });
     },
 
@@ -263,6 +274,9 @@ App = {
         var processId = parseInt($(event.target).data('id'));
 
         App.contracts.SupplyChain.deployed().then(function(instance) {
+            return instance.addRetailer(App.metamaskAccountID, {from: App.metamaskAccountID});
+        }).then(function(role) {
+            console.log('Role: ', role);
             return instance.receiveItem(App.upc, {from: App.metamaskAccountID});
         }).then(function(result) {
             $("#ftc-item").text(result);
@@ -277,11 +291,14 @@ App = {
         var processId = parseInt($(event.target).data('id'));
 
         App.contracts.SupplyChain.deployed().then(function(instance) {
+            return instance.addConsumer(App.metamaskAccountID, {from: App.metamaskAccountID});
+        }).then(function(role){
+            console.log('Role: ', role);
             return instance.purchaseItem(App.upc, {from: App.metamaskAccountID});
-        }).then(function(result) {
+        }).then(function(result){
             $("#ftc-item").text(result);
             console.log('purchaseItem',result);
-        }).catch(function(err) {
+        }).catch(function(err){
             console.log(err.message);
         });
     },
