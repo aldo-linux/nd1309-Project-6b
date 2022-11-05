@@ -6,7 +6,7 @@ App = {
     upc: 0,
     metamaskAccountID: "0x0000000000000000000000000000000000000000",
     ownerID: "0x0000000000000000000000000000000000000000",
-    originFarmerID: "0x0000000000000000000000000000000000000000",
+    originFarmerID: "0x018c2dabef4904ecbd7118350a0c54dbeae3549a",
     originFarmName: null,
     originFarmInformation: null,
     originFarmLatitude: null,
@@ -137,6 +137,9 @@ App = {
 
         App.getMetaskAccountID();
 
+        // ALDO: Had to add this as form was not being read at all
+        App.readForm();
+
         var processId = parseInt($(event.target).data('id'));
         console.log('processId',processId);
 
@@ -178,6 +181,7 @@ App = {
         event.preventDefault();
         var processId = parseInt($(event.target).data('id'));
 
+        // ALDO: Added the "from" as advised in the forum: https://knowledge.udacity.com/questions/868317
         App.contracts.SupplyChain.deployed().then(function(instance) {
             return instance.harvestItem(
                 App.upc, 
@@ -186,7 +190,8 @@ App = {
                 App.originFarmInformation, 
                 App.originFarmLatitude, 
                 App.originFarmLongitude, 
-                App.productNotes
+                App.productNotes,
+                {from: App.originFarmerID}
             );
         }).then(function(result) {
             $("#ftc-item").text(result);
