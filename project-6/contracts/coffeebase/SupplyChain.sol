@@ -8,10 +8,10 @@ import "../coffeeaccesscontrol/RetailerRole.sol";
 import "../coffeecore/Ownable.sol";
 
 // Define a contract 'Supplychain'
-contract SupplyChain is ConsumerRole(), DistributorRole(), FarmerRole(), RetailerRole(), Ownable(){
+contract SupplyChain is FarmerRole, DistributorRole, RetailerRole, ConsumerRole {
 
   // Define 'owner'
-  //address owner;
+  address owner;
 
   // Define a variable called 'upc' for Universal Product Code (UPC)
   uint  upc;
@@ -71,11 +71,10 @@ contract SupplyChain is ConsumerRole(), DistributorRole(), FarmerRole(), Retaile
   event Purchased(uint upc);
 
   // Define a modifer that checks to see if msg.sender == owner of the contract
-  // Already defined in Ownable.sol
-  // modifier onlyOwner() {
-  //   require(msg.sender == owner);
-  //   _;
-  // }
+  modifier onlyOwner() {
+    require(msg.sender == owner);
+    _;
+  }
 
   // Define a modifer that verifies the Caller
   modifier verifyCaller (address _address) {
@@ -149,14 +148,16 @@ contract SupplyChain is ConsumerRole(), DistributorRole(), FarmerRole(), Retaile
   // and set 'sku' to 1
   // and set 'upc' to 1
   constructor() public payable {
-    //owner = msg.sender;
+    owner = msg.sender;
     sku = 1;
     upc = 1;
   }
 
   // Define a function 'kill' if required
-  function kill() public onlyOwner{
-    selfdestruct(owner());
+  function kill() public {
+    if (msg.sender == owner) {
+      selfdestruct(owner);
+    }
   }
 
   // Define a function 'harvestItem' that allows a farmer to mark an item 'Harvested'
@@ -223,7 +224,7 @@ contract SupplyChain is ConsumerRole(), DistributorRole(), FarmerRole(), Retaile
   // Call modifer to check if buyer has paid enough
   // Call modifer to send any excess ether back to buyer
   function buyItem(uint _upc) public payable onlyDistributor forSale(_upc) paidEnough(items[_upc].productPrice) checkValue(_upc)
-    {
+  {
     // Update the appropriate fields - ownerID, distributorID, itemState
     items[_upc].ownerID = msg.sender;
     items[_upc].distributorID = msg.sender;
@@ -260,6 +261,7 @@ contract SupplyChain is ConsumerRole(), DistributorRole(), FarmerRole(), Retaile
     emit Received(_upc);
   }
 
+
   // Define a function 'purchaseItem' that allows the consumer to mark an item 'Purchased'
   // Use the above modifiers to check if the item is received
   // Call modifier to check if upc has passed previous supply chain stage
@@ -288,26 +290,19 @@ contract SupplyChain is ConsumerRole(), DistributorRole(), FarmerRole(), Retaile
   ) 
   {
     // Assign values to the 8 parameters
-    itemSKU = items[_upc].sku;
-    itemUPC = items[_upc].upc;
-    ownerID = items[_upc].ownerID;
-    originFarmerID = items[_upc].originFarmerID;
-    originFarmName = items[_upc].originFarmName;
-    originFarmInformation = items[_upc].originFarmInformation;
-    originFarmLatitude = items[_upc].originFarmLatitude;
-    originFarmLongitude = items[_upc].originFarmLongitude;
-    
-  return 
-  (
-  itemSKU,
-  itemUPC,
-  ownerID,
-  originFarmerID,
-  originFarmName,
-  originFarmInformation,
-  originFarmLatitude,
-  originFarmLongitude
-  );
+    Item memory item = items[_upc];
+ 
+    return 
+      (
+        item.sku,
+        item.upc,
+        item.ownerID,
+        item.originFarmerID,
+        item.originFarmName,
+        item.originFarmInformation,
+        item.originFarmLatitude,
+        item.originFarmLongitude
+      );
   }
 
   // Define a function 'fetchItemBufferTwo' that fetches the data
@@ -325,26 +320,19 @@ contract SupplyChain is ConsumerRole(), DistributorRole(), FarmerRole(), Retaile
   ) 
   {
     // Assign values to the 9 parameters
-    itemSKU = items[_upc].sku;
-    itemUPC = items[_upc].upc;
-    productID = items[_upc].productID;
-    productNotes = items[_upc].productNotes;
-    productPrice = items[_upc].productPrice;
-    itemState = uint (items[_upc].itemState);
-    distributorID = items[_upc].distributorID;
-    retailerID = items[_upc].retailerID;
-    consumerID = items[_upc].consumerID;
-  return 
-  (
-  itemSKU,
-  itemUPC,
-  productID,
-  productNotes,
-  productPrice,
-  itemState,
-  distributorID,
-  retailerID,
-  consumerID
-  );
+    Item memory item = items[_upc];
+        
+    return 
+      (
+        item.sku,
+        item.upc,
+        item.productID,
+        item.productNotes,
+        item.productPrice,
+        uint(item.itemState),
+        item.distributorID,
+        item.retailerID,
+        item.consumerID
+      );
   }
 }
