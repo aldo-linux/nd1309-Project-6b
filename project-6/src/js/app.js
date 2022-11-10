@@ -6,7 +6,7 @@ App = {
     upc: 0,
     metamaskAccountID: "0x0000000000000000000000000000000000000000",
     ownerID: "0x0000000000000000000000000000000000000000",
-    originFarmerID: "0x018c2dabef4904ecbd7118350a0c54dbeae3549a",
+    originFarmerID: "0x0000000000000000000000000000000000000000",
     originFarmName: null,
     originFarmInformation: null,
     originFarmLatitude: null,
@@ -279,9 +279,6 @@ App = {
         var processId = parseInt($(event.target).data('id'));
 
         App.contracts.SupplyChain.deployed().then(function(instance) {
-            return instance.addRetailer(App.metamaskAccountID, {from: App.metamaskAccountID});
-        }).then(function(role) {
-            console.log('Role: ', role);
             return instance.receiveItem(App.upc, {from: App.metamaskAccountID});
         }).then(function(result) {
             $("#ftc-item").text(result);
@@ -296,14 +293,11 @@ App = {
         var processId = parseInt($(event.target).data('id'));
 
         App.contracts.SupplyChain.deployed().then(function(instance) {
-            return instance.addConsumer(App.metamaskAccountID, {from: App.metamaskAccountID});
-        }).then(function(role){
-            console.log('Role: ', role);
             return instance.purchaseItem(App.upc, {from: App.metamaskAccountID});
-        }).then(function(result){
+        }).then(function(result) {
             $("#ftc-item").text(result);
             console.log('purchaseItem',result);
-        }).catch(function(err){
+        }).catch(function(err) {
             console.log(err.message);
         });
     },
