@@ -19,7 +19,11 @@
 
 
 ## UML Diagrams
+1. Activity Diagram
 ![Activity Diagram](../submission/images/CofeeSupplyChain-Activity%20Diagram.drawio.png)
+2. Class Diagram
 ![Class Diagram](../submission/images/CofeeSupplyChain-Class%20Diagram.drawio.png)
+3. Sequence Diagram
 ![Sequence Diagram](../submission/images/CofeeSupplyChain-Sequence%20Diagram.drawio.png)
+4. State Diagram
 ![State Diagram](../submission/images/CofeeSupplyChain-State%20Diagram.drawio.png)
